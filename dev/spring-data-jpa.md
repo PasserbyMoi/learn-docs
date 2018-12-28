@@ -2,7 +2,7 @@
 
 **继承接口并声明查询方法**
 
-```
+```java
 interface PersonRepository extends Repository<Person, Long> {
    List<Person> findByLastname(String lastname);
 }
@@ -10,12 +10,11 @@ interface PersonRepository extends Repository<Person, Long> {
 
 **Autowired注入**
 
-```
+```java
 public class SomeClient {
 
   @Autowired
   private PersonRepository repository;
-
   public void doSomething() {
     List<Person> persons = repository.findByLastname("Matthews");
   }
@@ -26,12 +25,10 @@ public class SomeClient {
 
 **选择性暴露CURD方法**
 
-```
+```java
 @NoRepositoryBean
 interface MyBaseRepository<T, ID extends Serializable> extends Repository<T, ID> {
-
   T findOne(ID id);
-
   T save(T entity);
 }
 
@@ -42,7 +39,7 @@ interface UserRepository extends MyBaseRepository<User, Long> {
 
 **使用特定模块接口定义Repository**
 
-```
+```java
 interface MyRepository extends JpaRepository<User, Long> { }
 
 @NoRepositoryBean
@@ -65,7 +62,7 @@ interface UserRepository extends MyBaseRepository<User, Long> {
 2.  ignoring case
 3.  order by
 
-```
+```java
 public interface PersonRepository extends Repository<User, Long> {
 
   List<Person> findByEmailAddressAndLastname(EmailAddress emailAddress, String lastname);
@@ -87,41 +84,33 @@ public interface PersonRepository extends Repository<User, Long> {
 
 为了消除不确定性，可以在方法名内使用下划线“_”手动定义隔断点。
 
-```
+```java
 List<Person> findByAddress_ZipCode(ZipCode zipCode);
 ```
 
 ## 特殊参数处理
 
-```
+```java
 Page<User> findByLastname(String lastname, Pageable pageable);
-
 Slice<User> findByLastname(String lastname, Pageable pageable);
-
 List<User> findByLastname(String lastname, Sort sort);
-
 List<User> findByLastname(String lastname, Pageable pageable);
 ```
 
 ## 限制查询结果数量
 
-```
+```java
 User findFirstByOrderByLastnameAsc();
-
 User findTopByOrderByAgeDesc();
-
 Page<User> queryFirst10ByLastname(String lastname, Pageable pageable);
-
 Slice<User> findTop3ByLastname(String lastname, Pageable pageable);
-
 List<User> findFirst10ByLastname(String lastname, Sort sort);
-
 List<User> findTop10ByLastname(String lastname, Pageable pageable);
 ```
 
 ## 流式查询结果
 
-```
+```java
 @Query("select u from User u")
 Stream<User> findAllByCustomQueryAndStream();
 
@@ -135,7 +124,7 @@ Stream<User> streamAllPaged(Pageable pageable);
 
 *   try-with-resources 块
 
-```
+```java
 try (Stream<User> stream = repository.findAllByCustomQueryAndStream()) {
   stream.forEach(…);
 }
@@ -147,13 +136,11 @@ try (Stream<User> stream = repository.findAllByCustomQueryAndStream()) {
 2.  使用 Java 8 `java.util.concurrent.CompletableFuture` 作为返回类型
 3.  使用 `org.springframework.util.concurrent.ListenableFuture` 作为返回类型
 
-```
+```java
 @Async
 Future<User> findByFirstname(String firstname);             
-
 @Async
 CompletableFuture<User> findOneByFirstname(String firstname);
-
 @Async
 ListenableFuture<User> findOneByLastname(String lastname);
 ```
@@ -191,9 +178,8 @@ ListenableFuture<User> findOneByLastname(String lastname);
 
 ## 基本用法
 
-```
+```java
 public interface UserRepository extends JpaRepository<User, Long> {
-
   @Query("select u from User u where u.emailAddress = ?1")
   User findByEmailAddress(String emailAddress);
 }
@@ -201,9 +187,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 ## 使用 LIKE 表达式
 
-```
+```java
 public interface UserRepository extends JpaRepository<User, Long> {
-
   @Query("select u from User u where u.firstname like %?1")
   List<User> findByFirstnameEndsWith(String firstname);
 }
@@ -211,7 +196,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 ## 使用原生SQL
 
-```
+```java
 public interface UserRepository extends JpaRepository<User, Long> {
 
   @Query(value = "SELECT * FROM USERS WHERE EMAIL_ADDRESS = ?1", nativeQuery = true)
@@ -221,9 +206,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 ## 原生SQL分页
 
-```
+```java
 public interface UserRepository extends JpaRepository<User, Long> {
-
   @Query(value = "SELECT * FROM USERS WHERE LASTNAME = ?1",
     countQuery = "SELECT count(*) FROM USERS WHERE LASTNAME = ?1",
     nativeQuery = true)
@@ -233,9 +217,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 ## 使用 Sort 和 JpaSort
 
-```
+```java
 public interface UserRepository extends JpaRepository<User, Long> {
-
   @Query("select u from User u where u.lastname like ?1%")
   List<User> findByAndSort(String lastname, Sort sort);
 
@@ -251,9 +234,8 @@ repo.findByAsArrayAndSort("bolton", new Sort("fn_len"));
 
 ## 使用已命名参数
 
-```
+```java
 public interface UserRepository extends JpaRepository<User, Long> {
-
   @Query("select u from User u where u.firstname = :firstname or u.lastname = :lastname")
   User findByLastnameOrFirstname(@Param("lastname") String lastname,
                                  @Param("firstname") String firstname);
@@ -262,7 +244,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
 ## 修改查询
 
-```
+```java
 @Modifying
 @Query("update User u set u.firstname = ?1 where u.lastname = ?2")
 int setFixedFirstnameFor(String firstname, String lastname);
